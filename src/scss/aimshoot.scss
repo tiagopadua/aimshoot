@@ -1,9 +1,17 @@
-$grey: #252525;
+$dark-grey: #252525;
+$grey: #333;
+$light-grey: #888;
+$border-grey: #444;
 $blue: #398cba;
-$orange: #d75c2e;
+$black: #000;
+$yellow: #dda30b;
+$blue-gradient-from: #00244c;
+$blue-gradient-to: #09153b;
+$yellow-gradient-from: #ffe428;
+$yellow-gradient-to: #fe8d00;
 
 body {
-    background-color: #252525;
+    background-color: $dark-grey;
     background-image: url("../../static/img/hexa.png");
     text-align: center;
     font-family: pubg, Arial, Helvetica, sans-serif;
@@ -14,198 +22,199 @@ body {
     width: 700px;
     height: 600px;
     margin: 100px auto;
-    border: 1px solid #333;
+    border: 1px solid $grey;
     border-radius: 12px;
     overflow: hidden;
 
-    background-color: #00244c;
-    background: -webkit-gradient(linear, left bottom, right top, color-stop(0%,#00244c), color-stop(100%,#09153b));
-    background: -webkit-linear-gradient(175deg, #00244c 0%, #09153b 100%);
-    background:    -moz-linear-gradient(175deg, #00244c 0%, #09153b 100%);
-    background:     -ms-linear-gradient(175deg, #00244c 0%, #09153b 100%);
-    background:      -o-linear-gradient(175deg, #00244c 0%, #09153b 100%);
-    background:         linear-gradient(175deg, #00244c 0%, #001440 100%);
+    background-color: $blue-gradient-from;
+    background: -webkit-gradient(linear, left bottom, right top, color-stop(0%,$blue-gradient-from), color-stop(100%,$blue-gradient-to));
+    background: -webkit-linear-gradient(175deg, $blue-gradient-from 0%, $blue-gradient-to 100%);
+    background:    -moz-linear-gradient(175deg, $blue-gradient-from 0%, $blue-gradient-to 100%);
+    background:     -ms-linear-gradient(175deg, $blue-gradient-from 0%, $blue-gradient-to 100%);
+    background:      -o-linear-gradient(175deg, $blue-gradient-from 0%, $blue-gradient-to 100%);
+    background:         linear-gradient(175deg, $blue-gradient-from 0%, $blue-gradient-to 100%);
 
-    box-shadow: 0px 0px 25px -5px #000;
+    box-shadow: 0px 0px 25px -5px $black;
 
     -webkit-user-select: none;
     -khtml-user-select: none;
     -moz-user-select: none;
     -o-user-select: none;
     user-select: none;
-}
 
-.shoot-container .shoot-header {
-    width: 100%;
-    height: 100px;
-    background: linear-gradient(0deg, #242424 0%, #303030 100%);
-    border-bottom: 1px solid #333;
-    text-align: left;
-}
+    .overlay-menu {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
 
-.shoot-container .shoot-header img {
-    display: inline-block;
-    width: 100px;
-    height: 100px;
-    margin-left: 30px;
-    vertical-align: middle;
-    cursor: pointer;
-}
+        .shoot-header {
+            width: 100%;
+            height: 100px;
+            background: linear-gradient(0deg, $dark-grey 0%, $grey 100%);
+            border-bottom: 1px solid $grey;
+            text-align: left;
 
-.shoot-header h1 {
-    display: inline-block;
-    vertical-align: middle;
-    margin: 0 20px;
-    font-size: 50px;
-    font-weight: lighter;
-    text-transform: uppercase;
-    background: #ffe428; /* Old browsers */
-    background: -moz-radial-gradient(center, ellipse cover, #ffe428 0%, #fe8d00 96%); /* FF3.6-15 */
-    background: -webkit-radial-gradient(center, ellipse cover, #ffe428 0%,#fe8d00 96%); /* Chrome10-25,Safari5.1-6 */
-    background: radial-gradient(ellipse at center, #ffe428 0%,#fe8d00 96%); /* W3C, IE10+, FF16+, Chrome26+, */
-    background-clip: text;
-	-webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
+            img {
+                display: inline-block;
+                width: 100px;
+                height: 100px;
+                margin-left: 30px;
+                vertical-align: middle;
+                cursor: pointer;
+            }
 
-.shoot-container .overlay-menu {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-}
+            h1 {
+                display: inline-block;
+                vertical-align: middle;
+                margin: 10px 0 0 20px;
+                font-size: 50px;
+                font-weight: lighter;
+                text-transform: uppercase;
+                background: $yellow-gradient-from; /* Old browsers */
+                background: -moz-radial-gradient(center, ellipse cover, $yellow-gradient-from 0%, $yellow-gradient-to 96%); /* FF3.6-15 */
+                background: -webkit-radial-gradient(center, ellipse cover, $yellow-gradient-from 0%,$yellow-gradient-to 96%); /* Chrome10-25,Safari5.1-6 */
+                background: radial-gradient(ellipse at center, $yellow-gradient-from 0%,$yellow-gradient-to 96%); /* W3C, IE10+, FF16+, Chrome26+, */
+                background-clip: text;
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+        }
 
-.weapon-menu {
-    position: absolute;
-    left: 0;
-    top: 0;
-    margin-top: 101px;
-    width: 100%;
-    height: 100%;
-    text-align: left;
-    background: linear-gradient(0deg, #242424 0%, #303030 100%);
-    cursor: default;
-    z-index: 300;
-}
+        .weapon-menu {
+            position: absolute;
+            left: 0;
+            top: 0;
+            margin-top: 101px;
+            width: 100%;
+            height: 100%;
+            text-align: left;
+            background: linear-gradient(0deg, $dark-grey 0%, $grey 100%);
+            cursor: default;
+            z-index: 300;
 
-.weapon-menu .weapon-category-item {
-    display: inline-block;
-    cursor: pointer;
-    border-bottom: 1px solid #444;
-}
-.catselected {
-    border: 1px solid #444;
-    border-bottom: 0 !important;
-}
+            .catselected {
+                border: 1px solid $border-grey;
+                border-bottom: 0 !important;
+            }
 
-.weapon-menu .weapon-category-item h3 {
-    color: #888;
-    margin: 5px 10px;
-    font-size: 30px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-}
-.weapon-menu .weapon-category-item h3:hover {
-    color: #dda30b;
-}
+            .weapon-category-item {
+                display: inline-block;
+                cursor: pointer;
+                border-bottom: 1px solid $border-grey;
 
-.weapon-menu .weapon-list {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: calc(100% - 150px);
-    margin-top: 50px;
-}
+                h3 {
+                    color: $light-grey;
+                    margin: 5px 10px;
+                    font-size: 30px;
+                    letter-spacing: 2px;
+                    text-transform: uppercase;
+                }
 
-.weapon-menu .weapon-item {
-    position: relative;
-    display: inline-block;
-    width: 130px;
-    height: 130px;
-    margin: 5px;
-    color: #dda30b;
-    /*border: 2px solid #333;*/
-    border-radius: 5px;
-    background-color: transparent;
-    transition: background-color 0.3s ease-in-out;
-    cursor: pointer;
-}
-.weapon-menu .weapon-item:hover {
-    color: #000;
-    background-color: #dda30b;
-}
+                h3:hover {
+                    color: $yellow;
+                }
 
-.weapon-menu .weapon-item h2 {
-    position: absolute;
-    bottom: 0;
-    margin: 3px;
-    font-size: 17px;
-    font-weight: lighter;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-}
+                .weapon-list {
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    width: 100%;
+                    height: calc(100% - 150px);
+                    margin-top: 50px;
 
-.weapon-menu .weapon-item img {
-    width: 100%;
-    height: 100%;
-}
+                    .weapon-item {
+                        position: relative;
+                        display: inline-block;
+                        width: 130px;
+                        height: 130px;
+                        margin: 5px;
+                        color: $yellow;
+                        border-radius: 5px;
+                        background-color: transparent;
+                        transition: background-color 0.3s ease-in-out;
+                        cursor: pointer;
 
-.shoot-area {
-    position: relative;
-    width: 100%;
-    height: calc(100% - 101px);
-    margin-top: 101px;
-    cursor: none;
-    overflow: hidden;
-}
+                        h2 {
+                            position: absolute;
+                            bottom: 0;
+                            margin: 3px;
+                            font-size: 17px;
+                            font-weight: lighter;
+                            letter-spacing: 1px;
+                            text-transform: uppercase;
+                        }
 
-.shoot-area img.aim {
-    position: absolute;
-    margin-left: -86px;
-    margin-top: -58px;
-    pointer-events: none;
-    z-index: 200;
-}
+                        img {
+                            width: 100%;
+                            height: 100%;
+                        }
+                    }
+                    .weapon-item:hover {
+                        color: $black;
+                        background-color: $yellow;
+                    }
+                }
+            }
+        }
+    }
 
-.shoot-area .target {
-    position: absolute;
-    width: 80px;
-    height: 80px;
-    border: 2px solid #000;
-    border-radius: 80px;
-    background-color: #303030;
-    overflow: hidden;
-    z-index: 1;
-    transform: scale(0.0);
-    animation-name: showGrow;
-    animation-duration: 6s;
-    animation-timing-function: ease-in-out;
-}
+    .shoot-area {
+        position: relative;
+        width: 100%;
+        height: calc(100% - 101px);
+        margin-top: 101px;
+        cursor: none;
+        overflow: hidden;
 
-.shoot-area .target .health {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    height: 100%;
-    background: #ffe428; /* Old browsers */
-    background: -moz-radial-gradient(center, ellipse cover, #ffe428 0%, #fe8d00 96%);
-    background: -webkit-radial-gradient(center, ellipse cover, #ffe428 0%,#fe8d00 96%);
-    background: radial-gradient(ellipse at center, #ffe428 0%,#fe8d00 96%);
-    z-index: 10;
-    transition: height 0.2s;
-}
+        img.aim {
+            position: absolute;
+            margin-left: -86px;
+            margin-top: -58px;
+            pointer-events: none;
+            z-index: 200;
+        }
 
-.shoot-area .target img {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 80px;
-    height: 80px;
-    margin-left: -2px;
-    z-index: 11;
+        .target {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border: 2px solid $black;
+            border-radius: 80px;
+            background-color: $grey;
+            overflow: hidden;
+            z-index: 1;
+            transform: scale(0.0);
+            animation-name: showGrow;
+            animation-duration: 6s;
+            animation-timing-function: ease-in-out;
+
+            .health {
+                position: absolute;
+                left: 0;
+                bottom: 0;
+                width: 100%;
+                height: 100%;
+                background: $yellow-gradient-from; /* Old browsers */
+                background: -moz-radial-gradient(center, ellipse cover, $yellow-gradient-from 0%, $yellow-gradient-to 96%);
+                background: -webkit-radial-gradient(center, ellipse cover, $yellow-gradient-from 0%,$yellow-gradient-to 96%);
+                background: radial-gradient(ellipse at center, $yellow-gradient-from 0%,$yellow-gradient-to 96%);
+                z-index: 10;
+                transition: height 0.2s;
+            }
+
+            img {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 80px;
+                height: 80px;
+                margin-left: -2px;
+                z-index: 11;
+            }
+        }
+    }
 }
 
 @keyframes showGrow {
