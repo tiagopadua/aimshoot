@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html class="no-js" dir="ltr" loc="en">
+ <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Aim Shoot</title>
+  <meta name="viewport" content="width=device-width">
+
+  <meta name="description" content="Train your aim with the mouse.">
+  <meta name="og:description" content="Train your aim with the mouse."/>
+  <meta name="og:url" content="https://web.aimshoot.com/"/>
+  <meta name="og:title" content="Aim Shoot"/>
+  <meta name="og:image" content="https://www.aimshoot.com/img/aimshoot-promo.png"/>
+
+  <link id="favicon" rel="shortcut icon" href="img/favicon.png" type="image/png" />
+  <link rel="stylesheet" href="css/aimshoot-[ replace:VERSION ].css"/>
+ </head>
+ <body>
+  <div class="shoot-container">
+   <div class="overlay-menu" id="menu">
+    <div class="shoot-header">
+     <img v-bind:src="selectedWeapon.icon" v-on:click="showMenu()"/>
+     <h1>{{ selectedWeapon.name }}</h1>
+    </div>
+    <div class="weapon-menu" v-if="visible">
+     <div class="weapon-category-item" v-for="category in equipment.weapons" v-on:click="setCategory(category.name)" v-bind:class="{catselected: weaponcategory===category.name}">
+      <h3>{{ category.name }}</h3>
+      <div class="weapon-list" v-if="weaponcategory === category.name">
+       <div class="weapon-item" v-for="weapon in category.list" v-on:click="setWeapon(weapon)">
+        <img v-bind:src="weapon.icon"/>
+        <h2>{{ weapon.name }}</h2>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+   <div class="shoot-area" id="shoot-area" oncontextmenu="return false">
+   <img src="img/red_dot.png" class="aim" id="aim"/>
+    <template id="target">
+     <div class="target">
+      <div class="health"></div>
+      <img src="img/armor2.png"/>
+     </div>
+    </template>
+   </div>
+  </div>
+
+  <script src="js/jquery-3.3.1.min.js"></script>
+  <script src="js/vue-2.5.16.min.js"></script>
+  <script src="js/aimshoot-[ replace:VERSION ].min.js"></script>
+ </body>
+</html>

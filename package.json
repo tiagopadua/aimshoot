@@ -1,0 +1,33 @@
+{
+  "name": "Aim-Shoot",
+  "version": "0.8.0",
+  "description": "Target training mini-game / mouse accuracy exercise",
+  "main": "webpack.config.js",
+  "dependencies": {},
+  "devDependencies": {
+    "babel-minify-webpack-plugin": "^0.2.0",
+    "copy-webpack-plugin": "^4.3.1",
+    "css-loader": "^0.28.9",
+    "extract-text-webpack-plugin": "^3.0.2",
+    "glob": "^7.1.2",
+    "node-sass": "^4.7.2",
+    "npx": "^9.7.1",
+    "sass-loader": "^6.0.6",
+    "style-loader": "^0.20.1",
+    "url-loader": "^1.0.1",
+    "webpack": "^3.10.0"
+  },
+  "scripts": {
+    "clean": "rm -rf dist && mkdir dist",
+    "build": "npx --max-old-space-size=128 webpack",
+    "prebuild": "npm --max-old-space-size=128 run clean",
+    "publish-dev": "scp -r dist/* tiagopadua.com:~/html/aimshoot/",
+    "prepublish-dev": "npm --max-old-space-size=128 run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.azc.ext.hp.com:RobotSW/web-telepresence.git"
+  },
+  "author": "tiagopadua@gmail.com",
+  "license": "MIT"
+}

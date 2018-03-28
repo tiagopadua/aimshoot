@@ -1,0 +1,315 @@
+{
+    "weapons": {
+        "pistols": {
+            "multipliers": {
+                "head": 2.0,
+                "body": 1.0,
+                "limbs": 1.0
+            },
+            "list": [
+                {
+                    "name": "P18C",
+                    "ammo": "9mm",
+                    "capacity": 15,
+                    "power": 21.0,
+                    "rate": 0.06,
+                    "range": 11,
+                    "icon": "img/p18c.png"
+                }, {
+                    "name": "P92",
+                    "ammo": "9mm",
+                    "capacity": 15,
+                    "power": 30.0,
+                    "rate": 0.135,
+                    "range": 15,
+                    "icon": "img/p92.png"
+                }, {
+                    "name": "P1911",
+                    "ammo": ".45",
+                    "capacity": 7,
+                    "power": 36.0,
+                    "rate": 0.110,
+                    "range": 15,
+                    "icon": "img/p1911.png"
+                }, {
+                    "name": "R45",
+                    "ammo": ".45",
+                    "capacity": 6,
+                    "power": 49.5,
+                    "rate": 0,
+                    "range": 0,
+                    "icon": "img/r45.png"
+                }, {
+                    "name": "R1895",
+                    "ammo": "7.62",
+                    "capacity": 7,
+                    "power": 49.5,
+                    "rate": 0.4,
+                    "range": 32,
+                    "icon": "img/r1895.png"
+                }
+            ]
+        },
+        "rifles": {
+            "multipliers": {
+                "head": 2.3,
+                "body": 1.0,
+                "limbs": 0.9
+            },
+            "list": [
+                {
+                    "name": "AKM",
+                    "ammo": "7.62",
+                    "capacity": 30,
+                    "power": 49.0,
+                    "rate": 0.1,
+                    "range": 60,
+                    "icon": "img/akm.png"
+                }, {
+                    "name": "Groza",
+                    "ammo": "7.62",
+                    "capacity": 30,
+                    "power": 49.0,
+                    "rate": 0.08,
+                    "range": 60,
+                    "icon": "img/groza.png"
+                }, {
+                    "name": "M416",
+                    "ammo": "5.56",
+                    "capacity": 30,
+                    "power": 44.0,
+                    "rate": 0.086,
+                    "range": 57,
+                    "icon": "img/m416.png"
+                }, {
+                    "name": "SCAR-L",
+                    "ammo": "5.56",
+                    "capacity": 30,
+                    "power": 44.0,
+                    "rate": 0.096,
+                    "range": 55,
+                    "icon": "img/scarl.png"
+                }, {
+                    "name": "M16A4",
+                    "ammo": "5.56",
+                    "capacity": 30,
+                    "power": 44.0,
+                    "rate": 0.075,
+                    "range": 63,
+                    "icon": "img/m16a4.png"
+                }, {
+                    "name": "AUG A3",
+                    "ammo": "5.56",
+                    "capacity": 30,
+                    "power": 44.0,
+                    "rate": 0,
+                    "range": 0,
+                    "icon": "img/auga3.png"
+                }
+            ]
+        },
+        "smgs": {
+            "multipliers": {
+                "head": 1.8,
+                "body": 1.0,
+                "limbs": 1.0
+            },
+            "list": [
+                {
+                    "name": "Micro Uzi",
+                    "ammo": "9mm",
+                    "capacity": 25,
+                    "power": 25.0,
+                    "rate": 0.048,
+                    "range": 22,
+                    "icon": "img/microuzi.png"
+                }, {
+                    "name": "Vector",
+                    "ammo": ".45",
+                    "capacity": 13,
+                    "power": 0.33,
+                    "rate": 0.055,
+                    "range": 18,
+                    "icon": "img/vector.png"
+                }, {
+                    "name": "ump9",
+                    "ammo": "9mm",
+                    "capacity": 30,
+                    "power": 38.0,
+                    "rate": 0.092,
+                    "range": 30,
+                    "icon": "img/ump9.png"
+                }, {
+                    "name": "Tommy Gun",
+                    "ammo": ".45",
+                    "capacity": 30,
+                    "power": 40.0,
+                    "rate": 0.086,
+                    "range": 46,
+                    "icon": "img/tommygun.png"
+                }
+            ]
+        },
+        "mgs": {
+            "multipliers": {
+                "head": 2.3,
+                "body": 1.0,
+                "limbs": 0.95
+            },
+            "list": [
+                {
+                    "name": "M249",
+                    "ammo": "5.56",
+                    "capacity": 100,
+                    "power": 45.0,
+                    "rate": 0.075,
+                    "range": 71,
+                    "icon": "img/.png"
+                }, {
+                    "name": "DP-28",
+                    "ammo": "7.62",
+                    "capacity": 47,
+                    "power": 45.0,
+                    "rate": 0.075,
+                    "range": 71,
+                    "icon": "img/dp28.png"
+                }
+            ]
+        },
+        "snipers": {
+            "multipliers": {
+                "head": 2.5,
+                "body": 1.1,
+                "limbs": 0.95
+            },
+            "list": [
+                {
+                    "name": "VSS",
+                    "ammo": "9mm",
+                    "capacity": 10,
+                    "power": 40.0,
+                    "rate": 0.086,
+                    "range": 0,
+                    "icon": "img/vss.png"
+                }, {
+                    "name": "Mini 14",
+                    "ammo": "5.56",
+                    "capacity": 20,
+                    "power": 45.0,
+                    "rate": 0.1,
+                    "range": 63,
+                    "icon": "img/mini14.png"
+                }, {
+                    "name": "SKS",
+                    "ammo": "7.62",
+                    "capacity": 10,
+                    "power": 57.0,
+                    "rate": 0.09,
+                    "range": 64,
+                    "icon": "img/sks.png"
+                }, {
+                    "name": "MK14 EBR",
+                    "ammo": "7.62",
+                    "capacity": 10,
+                    "power": 61.0,
+                    "rate": 0.09,
+                    "range": 80,
+                    "icon": "img/mk14ebr.png"
+                }, {
+                    "name": "Win 1894",
+                    "ammo": ".45",
+                    "capacity": 8,
+                    "power": 66.0,
+                    "rate": 0,
+                    "range": 0,
+                    "icon": "img/win1894.png"
+                }, {
+                    "name": "Kar98k",
+                    "ammo": "7.62",
+                    "capacity": 5,
+                    "power": 75.0,
+                    "rate": 1.9,
+                    "range": 79,
+                    "icon": "img/kar98k.png"
+                }, {
+                    "name": "M24",
+                    "ammo": "7.62",
+                    "capacity": 5,
+                    "power": 88.0,
+                    "rate": 1.8,
+                    "range": 96,
+                    "icon": "img/m24.png"
+                }, {
+                    "name": "AWM",
+                    "ammo": ".300",
+                    "capacity": 5,
+                    "power": 120.0,
+                    "rate": 1.85,
+                    "range": 100,
+                    "icon": "img/awm.png"
+                }
+            ]
+        },
+        "other": {
+            "list": [
+                {
+                    "name": "crossbow",
+                    "ammo": "Bolt",
+                    "capacity": 1,
+                    "power": 105.0,
+                    "rate": 1.0,
+                    "range": 4,
+                    "icon": "img/crossbow.png"
+                }
+            ]
+        }
+    },
+    "helmets": [
+        {
+            "name": "Bare skin",
+            "dr": 0.0,
+            "durability": 0,
+            "icon": "img/head.png",
+        },
+        {
+            "name": "lvl 1",
+            "dr": 0.3,
+            "durability": 80,
+            "icon": "img/helmet1.png"
+        }, {
+            "name": "lvl 2",
+            "dr": 0.4,
+            "durability": 150,
+            "icon": "img/helmet2.png"
+        }, {
+            "name": "lvl 3",
+            "dr": 0.55,
+            "durability": 230,
+            "icon": "img/helmet3.png"
+        }
+    ],
+    "armors": [
+        {
+            "name": "none",
+            "dr": 0.0,
+            "durability": 0,
+            "icon": "img/body.png"
+        },
+        {
+            "name": "lvl 1",
+            "dr": 0.3,
+            "durability": 200,
+            "icon": "img/armor1.png"
+        }, {
+            "name": "lvl 2",
+            "dr": 0.4,
+            "durability": 220,
+            "icon": "img/armor2.png"
+        }, {
+            "name": "lvl 3",
+            "dr": 0.55,
+            "durability": 250,
+            "icon": "img/armor3.png"
+        }
+    ]
+}
