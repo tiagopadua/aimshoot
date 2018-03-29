@@ -1,7 +1,11 @@
 # aimshoot
 Target training mini-game / mouse accuracy exercise
 
+You can see it working here: https://tiagopadua.com/aimshoot/aimshoot.html
+
 ## Build
+Note: the build was tested on **Linux**. Probably won't work on other OS.
+
 To prepare for building, you need to have installed [npm](https://www.npmjs.com/).
 
 Then, on the project root folder, run once:
