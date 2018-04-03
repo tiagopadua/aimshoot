@@ -1,3 +1,6 @@
+let EventEmitter = require("./eventemitter.js").EventEmitter;
+
+
 function getObjectCoords(domObject) {
     let box = domObject.getBoundingClientRect();
     let clientTop = document.documentElement.clientTop || document.body.clientTop || 0;
@@ -18,20 +21,37 @@ function getMouseObjectXY(mouseEvent, domObject) {
     }
 }
 
-export class MouseMove {
-    constructor(targetObject, onMouseMove, onMouseDown, onMouseUp) {
+export class MouseMove extends EventEmitter {
+    constructor(targetObject) {
+        super();
+
         this._targetDOM = targetObject;
-        this._mouseDragging = false;
-        this._onMouseMove = onMouseMove;
-        this._onMouseDown = onMouseDown;
-        this._onMouseUp = onMouseUp;
+
+        this.position = {
+            x: 0,
+            y: 0
+        };
+        this.limits = {
+            left: 0,
+            top: 0,
+            right: targetObject.offsetWidth,
+            bottom: targetObject.offsetHeight
+        }
+
+        this._targetDOM.requestPointerLock = this._targetDOM.requestPointerLock || this._targetDOM.mozRequestPointerLock || this._targetDOM.webkitRequestPointerLock;
+
+        window.addEventListener("blur", () => this.unlock());
+        this._targetDOM.addEventListener("pointerlockchange", event => {
+            if ((document.pointerLockElement || document.mozPointerLockElement || document.webkitPointerLockElement) === this._targetDOM) {
+                this.removeListeners();
+            }
+        })
     }
 
     addListeners() {
-        // MOUSE input handling
         this.mousedownHandler = event => {
             if (event.which !== 1) { return; } // Consider only LEFT clicks
-            this.onMouseDown(event)
+            this.onMouseDown(event);
         };
         this.mousemoveHandler = event => this.onMouseMove(event);
         this.mouseupHandler = event => this.onMouseUp(event);
@@ -39,71 +59,49 @@ export class MouseMove {
         this._targetDOM.addEventListener("mousedown", this.mousedownHandler);
         window.addEventListener("mousemove", this.mousemoveHandler);
         window.addEventListener("mouseup", this.mouseupHandler);
-
-        // TOUCH input handling
-        this.touchstartHandler = event => {
-            if (event.which !== 1) { return; } // Consider only LEFT clicks
-            event.preventDefault();
-            event.clientX = event.touches[0].clientX;
-            event.clientY = event.touches[0].clientY;
-            this.onMouseDown(event);
-        };
-        this.touchmoveHandler = event => {
-            event.preventDefault();
-            event.clientX = event.touches[0].clientX;
-            event.clientY = event.touches[0].clientY;
-            this.onMouseMove(event);
-        };
-        this.touchendHandler = event => {
-            event.preventDefault();
-            this.onMouseUp(event);
-        };
-        this.touchcancelHandler = event => {
-            event.preventDefault();
-            this.onMouseUp(event);
-        };
-        this._targetDOM.addEventListener("touchstart", this.touchstartHandler);
-        window.addEventListener("touchmove", this.touchmoveHandler);
-        window.addEventListener("touchend", this.touchendHandler);
-        window.addEventListener("touchcancel", this.touchcancelHandler);
-
-        window.addEventListener("blur", this.mouseupHandler);  // Same handler as mouseUp: stop the control
     }
 
     removeListeners() {
-        // Mouse
         this._targetDOM.removeEventListener("mousedown", this.mousedownHandler);
         window.removeEventListener("mousemove", this.mousemoveHandler);
         window.removeEventListener("mouseup", this.mouseupHandler);
-        // Touch
-        this._targetDOM.removeEventListener("touchstart", this.touchstartHandler);
-        window.removeEventListener("touchmove", this.touchmoveHandler);
-        window.removeEventListener("touchend", this.touchendHandler);
-        window.removeEventListener("touchcancel", this.touchcancelHandler);
     }
 
     onMouseDown(event) {
-        this._mouseDragging = true;
-        this._onMouseDown(getMouseObjectXY(event, this._targetDOM));
+        this.emit("down", this.position);
     }
 
     onMouseMove(event) {
-        this._onMouseMove(getMouseObjectXY(event, this._targetDOM), this._mouseDragging);
-
-        // Do not propagate event when dragging
-        if (event.stopPropagation) {
-            event.stopPropagation();
-        }
-        if (event.preventDefault) {
-            event.preventDefault();
-        }
-        event.cancelBubble = true;
-        event.returnValue = false;
-        return false;
+        this.updatePosition(event.movementX, event.movementY);
+        this.emit("move", this.position);
     }
 
     onMouseUp(event) {
-        this._mouseDragging = false;
-        this._onMouseUp();
+        this.emit("up");
+    }
+
+    updatePosition(deltaX, deltaY) {
+        this.position.x = Math.max(this.limits.left, Math.min(this.limits.right, this.position.x + deltaX));
+        this.position.y = Math.max(this.limits.top, Math.min(this.limits.bottom, this.position.y + deltaY));
+    }
+
+    lock() {
+        // Reset current position
+        this.position.x = 350;
+        this.position.y = 300;
+
+        // Setup mouse control
+        this.addListeners();
+        this._targetDOM.requestPointerLock();
+
+        this.emit("lock");
+    }
+
+    unlock() {
+        let exitPointerLock = document.exitPointerLock || document.mozExitPointerLock || document.webkitExitPointerLock;
+        exitPointerLock();
+        this.removeListeners();
+
+        this.emit("unlock");
     }
 }

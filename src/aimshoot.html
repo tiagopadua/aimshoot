@@ -17,7 +17,7 @@
  </head>
  <body>
   <div class="shoot-container">
-   <div class="overlay-menu" id="menu">
+   <div class="overlay-menu" id="menu" v-cloak>
     <div class="shoot-header">
      <img v-bind:src="selectedWeapon.icon" v-on:click="showMenu()"/>
      <h1>{{ selectedWeapon.name }}</h1>

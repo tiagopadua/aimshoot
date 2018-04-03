@@ -15,13 +15,18 @@ body {
     background-image: url("../../static/img/hexa.png");
     text-align: center;
     font-family: pubg, Arial, Helvetica, sans-serif;
+    font-weight: lighter;
+}
+
+[v-cloak] {
+    display: none;
 }
 
 .shoot-container {
     position: relative;
     width: 700px;
     height: 600px;
-    margin: 100px auto;
+    margin: 100px auto 0 auto;
     border: 1px solid $grey;
     border-radius: 12px;
     overflow: hidden;
@@ -108,6 +113,7 @@ body {
                     color: $light-grey;
                     margin: 5px 10px;
                     font-size: 30px;
+                    font-weight: lighter;
                     letter-spacing: 2px;
                     text-transform: uppercase;
                 }
@@ -165,7 +171,7 @@ body {
         width: 100%;
         height: calc(100% - 101px);
         margin-top: 101px;
-        cursor: none;
+        cursor: pointer;
         overflow: hidden;
 
         img.aim {
@@ -180,6 +186,8 @@ body {
             position: absolute;
             width: 80px;
             height: 80px;
+            margin-left: -40px;
+            margin-top: -40px;
             border: 2px solid $black;
             border-radius: 80px;
             background-color: $grey;
