@@ -26,7 +26,7 @@
      <div class="weapon-category-item" v-for="category in equipment.weapons" v-on:click="setCategory(category.name)" v-bind:class="{catselected: weaponcategory===category.name}">
       <h3>{{ category.name }}</h3>
       <div class="weapon-list" v-if="weaponcategory === category.name">
-       <div class="weapon-item" v-for="weapon in category.list" v-on:click="setWeapon(weapon)">
+       <div class="weapon-item" v-for="weapon in category.list" v-on:click="setWeapon(weapon,category.multipliers)">
         <img v-bind:src="weapon.icon"/>
         <h2>{{ weapon.name }}</h2>
        </div>
@@ -36,6 +36,10 @@
    </div>
    <div class="shoot-area" id="shoot-area" oncontextmenu="return false">
     <img src="img/red_dot.png" class="aim" id="aim"/>
+    <div class="reload" id="reload" v-if="visible">
+     <h2>Reloading</h2>
+     <div></div>
+    </div>
     <template id="target">
      <div class="target">
       <div class="health"></div>

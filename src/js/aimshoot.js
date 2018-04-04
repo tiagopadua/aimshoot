@@ -6,6 +6,28 @@ let TargetManager = require("./target.js").TargetManager;
 const EQUIPMENT_URL = "js/equipment.json",
       RECOIL_TO_PIXEL_FACTOR = 0.3;
 
+class Reloader {
+    constructor(elementId) {
+        this.reloadElement = document.getElementById(elementId);
+        this.reloadBarElement = this.reloadElement.querySelector("div");
+    }
+
+    show(time) {
+        this.reloadBarElement.style.width = "0%";
+        this.reloadBarElement.style.transition = "width " + time + "s linear";
+        this.reloadElement.style.display = "block";
+        setTimeout(() => {
+            this.reloadBarElement.style.width = "100%";
+        }, 50);
+    }
+
+    hide() {
+        this.reloadElement.style.display = "none";
+        this.reloadBarElement.style.transition = "";
+        this.reloadBarElement.style.width = "0";
+    }
+}
+
 class Shooter {
     constructor(areaElement, aimElement) {
         this._areaElement = areaElement;
@@ -23,11 +45,12 @@ class Shooter {
         this._mouse.on("lock", () => this.start());
         this._mouse.on("unlock", () => this.stop());
 
-        this._areaElement.addEventListener("click", () => this.start());
+        this._areaElement.addEventListener("click", () => this._mouse.lock());
 
         this.weapon = {
             "name": "None",
             "ammo": "",
+            "bullets": 0,
             "capacity": 0,
             "power": 0,
             "rate": 0,
@@ -44,6 +67,9 @@ class Shooter {
         this.shotTime = 0; // For fire rate
         this.shootIntent = false; // Tried to shoot in-between shots
         this.fullAutoInterval = null;
+        this.reloading = false;
+
+        this.reloader = new Reloader("reload");
     }
 
     start() {
@@ -52,14 +78,13 @@ class Shooter {
         }
 
         this.running = true;
-        this._mouse.lock();
         this._interval = setInterval(() => this.targetManager.addTarget(), 1000);
     }
 
     stop() {
         this.running = false;
 
-        if (typeof(this._interval) !== "number") {
+        if (this._interval === null) {
             return console.warn("Cannot stop interval, it is invalid!");
         }
         clearInterval(this._interval);
@@ -88,6 +113,10 @@ class Shooter {
                                 "modes": [ "semi", "full" ],
                                 "range": 11,
                                 "icon": "img/p18c.png",
+                                "reload": {
+                                    "full": 2.0,
+                                    "tactical": 1.7
+                                },
                                 "recoil": {
                                     "spread": 3.5,
                                     "horizontal": {
@@ -114,6 +143,10 @@ class Shooter {
                                 "modes": [ "semi" ],
                                 "range": 15,
                                 "icon": "img/p92.png",
+                                "reload": {
+                                    "full": 2.0,
+                                    "tactical": 1.7
+                                },
                                 "recoil": {
                                     "spread": 2.5,
                                     "horizontal": {
@@ -140,6 +173,10 @@ class Shooter {
                                 "modes": [ "semi" ],
                                 "range": 15,
                                 "icon": "img/p1911.png",
+                                "reload": {
+                                    "full": 2.1,
+                                    "tactical": 1.8
+                                },
                                 "recoil": {
                                     "spread": 3.0,
                                     "horizontal": {
@@ -176,6 +213,9 @@ class Shooter {
                                 "modes": [ "single" ],
                                 "range": 0,
                                 "icon": "img/r45.png",
+                                "reload": {
+                                    "single": [ 1.0, 0.75 ]
+                                },
                                 "recoil": {
                                     "spread": 8.0,
                                     "horizontal": {
@@ -202,6 +242,9 @@ class Shooter {
                                 "modes": [ "single" ],
                                 "range": 32,
                                 "icon": "img/r1895.png",
+                                "reload": {
+                                    "single": [ 1.0, 0.75 ]
+                                },
                                 "recoil": {
                                     "spread": 8.0,
                                     "horizontal": {
@@ -238,6 +281,10 @@ class Shooter {
                                 "modes": [ "semi", "full" ],
                                 "range": 60,
                                 "icon": "img/akm.png",
+                                "reload": {
+                                    "full": 2.9,
+                                    "tactical": 2.25
+                                },
                                 "recoil": {
                                     "spread": 5.0,
                                     "horizontal": {
@@ -272,6 +319,10 @@ class Shooter {
                                 "modes": [ "semi", "full" ],
                                 "range": 60,
                                 "icon": "img/groza.png",
+                                "reload": {
+                                    "full": 3.0,
+                                    "tactical": 2.25
+                                },
                                 "recoil": {
                                     "spread": 6.0,
                                     "horizontal": {
@@ -298,6 +349,10 @@ class Shooter {
                                 "modes": [ "semi", "full" ],
                                 "range": 57,
                                 "icon": "img/m416.png",
+                                "reload": {
+                                    "full": 2.1,
+                                    "tactical": 1.9
+                                },
                                 "recoil": {
                                     "spread": 4.0,
                                     "horizontal": {
@@ -324,6 +379,10 @@ class Shooter {
                                 "modes": [ "semi", "full" ],
                                 "range": 55,
                                 "icon": "img/scarl.png",
+                                "reload": {
+                                    "full": 2.2,
+                                    "tactical": 1.9
+                                },
                                 "recoil": {
                                     "spread": 4.0,
                                     "horizontal": {
@@ -350,6 +409,10 @@ class Shooter {
                                 "modes": [ "semi", "burst" ],
                                 "range": 63,
                                 "icon": "img/m16a4.png",
+                                "reload": {
+                                    "full": 2.2,
+                                    "tactical": 1.9
+                                },
                                 "recoil": {
                                     "spread": 5.0,
                                     "horizontal": {
@@ -376,6 +439,10 @@ class Shooter {
                                 "modes": [ "semi", "full" ],
                                 "range": 0,
                                 "icon": "img/auga3.png",
+                                "reload": {
+                                    "full": 2.1,
+                                    "tactical": 1.9
+                                },
                                 "recoil": {
                                     "spread": 5.0,
                                     "horizontal": {
@@ -412,6 +479,10 @@ class Shooter {
                                 "modes": [ "semi", "full" ],
                                 "range": 22,
                                 "icon": "img/microuzi.png",
+                                "reload": {
+                                    "full": 3.1,
+                                    "tactical": 2.5
+                                },
                                 "recoil": {
                                     "spread": 3.5,
                                     "horizontal": {
@@ -438,6 +509,10 @@ class Shooter {
                                 "modes": [ "semi", "burst", "full" ],
                                 "range": 18,
                                 "icon": "img/vector.png",
+                                "reload": {
+                                    "full": 2.2,
+                                    "tactical": 2.1
+                                },
                                 "recoil": {
                                     "spread": 3.5,
                                     "horizontal": {
@@ -464,6 +539,10 @@ class Shooter {
                                 "modes": [ "semi", "burst", "full" ],
                                 "range": 30,
                                 "icon": "img/ump9.png",
+                                "reload": {
+                                    "full": 3.1,
+                                    "tactical": 2.55
+                                },
                                 "recoil": {
                                     "spread": 3.5,
                                     "horizontal": {
@@ -490,6 +569,10 @@ class Shooter {
                                 "modes": [ "semi", "full" ],
                                 "range": 46,
                                 "icon": "img/tommygun.png",
+                                "reload": {
+                                    "full": 3.45,
+                                    "tactical": 2.85
+                                },
                                 "recoil": {
                                     "spread": 3.5,
                                     "horizontal": {
@@ -526,6 +609,10 @@ class Shooter {
                                 "modes": [ "full" ],
                                 "range": 71,
                                 "icon": "img/m249.png",
+                                "reload": {
+                                    "full": 8.2,
+                                    "tactical": 7.1
+                                },
                                 "recoil": {
                                     "spread": 6.0,
                                     "horizontal": {
@@ -588,6 +675,10 @@ class Shooter {
                                 "modes": [ "semi", "full" ],
                                 "range": 0,
                                 "icon": "img/vss.png",
+                                "reload": {
+                                    "full": 3.5,
+                                    "tactical": 2.583
+                                },
                                 "recoil": {
                                     "spread": 7.0,
                                     "horizontal": {
@@ -614,6 +705,9 @@ class Shooter {
                                 "modes": [ "single" ],
                                 "range": 0,
                                 "icon": "img/win1894.png",
+                                "reload": {
+                                    "single": [ 1.69, 0.75 ]
+                                },
                                 "recoil": {
                                     "spread": 8.0,
                                     "horizontal": {
@@ -640,6 +734,9 @@ class Shooter {
                                 "modes": [ "single" ],
                                 "range": 79,
                                 "icon": "img/kar98k.png",
+                                "reload": {
+                                    "single": [ 1.69, 0.75 ]
+                                },
                                 "recoil": {
                                     "spread": 8.0,
                                     "horizontal": {
@@ -666,6 +763,10 @@ class Shooter {
                                 "modes": [ "single" ],
                                 "range": 96,
                                 "icon": "img/m24.png",
+                                "reload": {
+                                    "full": 4.2,
+                                    "tactical": 1.8
+                                },
                                 "recoil": {
                                     "spread": 7.5,
                                     "horizontal": {
@@ -692,6 +793,10 @@ class Shooter {
                                 "modes": [ "single" ],
                                 "range": 100,
                                 "icon": "img/awm.png",
+                                "reload": {
+                                    "full": 4.6,
+                                    "tactical": 2.3
+                                },
                                 "recoil": {
                                     "spread": 7.5,
                                     "horizontal": {
@@ -729,6 +834,10 @@ class Shooter {
                                 "modes": [ "semi" ],
                                 "range": 63,
                                 "icon": "img/mini14.png",
+                                "reload": {
+                                    "full": 3.6,
+                                    "tactical": 2.7
+                                },
                                 "recoil": {
                                     "spread": 5.0,
                                     "horizontal": {
@@ -755,6 +864,10 @@ class Shooter {
                                 "modes": [ "semi" ],
                                 "range": 64,
                                 "icon": "img/sks.png",
+                                "reload": {
+                                    "full": 2.9,
+                                    "tactical": 2.35
+                                },
                                 "recoil": {
                                     "spread": 7.0,
                                     "horizontal": {
@@ -781,6 +894,10 @@ class Shooter {
                                 "modes": [ "semi" ],
                                 "range": 80,
                                 "icon": "img/mk14ebr.png",
+                                "reload": {
+                                    "full": 3.683,
+                                    "tactical": 2.783
+                                },
                                 "recoil": {
                                     "spread": 7.0,
                                     "horizontal": {
@@ -817,6 +934,9 @@ class Shooter {
                                 "modes": [ "single" ],
                                 "range": 4,
                                 "icon": "img/crossbow.png",
+                                "reload": {
+                                    "single": [ 3.8 ]
+                                },
                                 "recoil": {
                                     "spread": 5.0,
                                     "horizontal": {
@@ -920,6 +1040,13 @@ class Shooter {
     }
 
     shoot(fullAutoCount) {
+        if (this.reloading) {
+            return;
+        } else if (this.weapon.bullets <= 0) {
+            this.reload();
+            return;
+        }
+
         // Check if can shoot, according to fire rate
         let now = Date.now();
         let elapsedTime = now - this.shotTime;
@@ -931,6 +1058,10 @@ class Shooter {
             return;
         }
         this.shotTime = now;
+
+        // Get rid of 1 bullet
+        this.weapon.bullets -= 1;
+        console.log(this.weapon.bullets);
 
         // Verify target hit
         this.targetManager.checkHit(this._mouse.position.x, this._mouse.position.y, this.weapon.power, this.weaponMultipliers);
@@ -960,8 +1091,6 @@ class Shooter {
         recoilX *= this.weapon.recoil.spread * RECOIL_TO_PIXEL_FACTOR / 2;
         recoilY *= this.weapon.recoil.spread * RECOIL_TO_PIXEL_FACTOR;
 
-        console.log(fullAutoCount, recoilY);
-
         if ((Math.random() - 0.5) < 0) {
             recoilX *= -1;
         }
@@ -970,9 +1099,11 @@ class Shooter {
     }
 
     startFullAuto() {
-        if (this.fullAutoInterval !== null) {
+        // Ignor if already started, or if reloading
+        if (this.fullAutoInterval !== null || this.reloading) {
             return;
         }
+        // Don't start if weapon does not support full-auto
         if (this.weapon.modes.indexOf("full") < 0) {
             return;
         }
@@ -984,12 +1115,28 @@ class Shooter {
             fullAutoCount += 1;
         }, this.weapon.rate);
     }
+
     stopFullAuto() {
         if (this.fullAutoInterval === null) {
             return;
         }
         clearInterval(this.fullAutoInterval);
         this.fullAutoInterval = null;
+    }
+
+    reload() {
+        console.log("Reloading");
+        this.reloading = true;
+        this.stopFullAuto();
+
+        let reloadTime = this.weapon.reload.full || this.weapon.reload.single[0];
+        setTimeout(() => {
+            this.weapon.bullets = this.weapon.capacity;
+            this.reloading = false;
+            this.reloader.hide();
+        }, reloadTime * 1000.0);
+        
+        this.reloader.show(reloadTime);
     }
 
     setAimPositionFromMouse() {
@@ -1027,9 +1174,13 @@ window.shooter.loadEquipment().then(equipment => {
             setCategory: function(categoryName) {
                 this.weaponcategory = categoryName;
             },
-            setWeapon: function(weapon) {
+            setWeapon: function(weapon, multipliers) {
+                weapon.bullets = weapon.capacity;
                 weapon.selectedMode = weapon.modes[0];
-                this.selectedWeapon = window.shooter.weapon = weapon;
+                this.selectedWeapon = weapon;
+                window.shooter.weapon = weapon;
+                window.shooter.weaponMultipliers = multipliers;
+
                 this.hideMenu();
             },
             showMenu: function() {

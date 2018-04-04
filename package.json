@@ -21,8 +21,8 @@
     "clean": "rm -rf dist && mkdir dist",
     "build": "npx --max-old-space-size=128 webpack",
     "prebuild": "npm --max-old-space-size=128 run clean",
-    "publish-dev": "scp -r dist/* tiagopadua.com:~/html/aimshoot/",
-    "prepublish-dev": "npm --max-old-space-size=128 run build"
+    "publish": "scp -r dist/* tiagopadua.com:~/html/aimshoot/",
+    "prepublish": "npm --max-old-space-size=128 run build"
   },
   "repository": {
     "type": "git",

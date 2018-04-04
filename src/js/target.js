@@ -60,7 +60,7 @@ export class TargetManager {
         target.health = this.TARGET_HEALTH;
 
         target.addEventListener("animationend", () => {
-            console.log("ended");
+            console.log("Target survived!");
             this._areaElement.removeChild(target);
         });
 
@@ -79,7 +79,6 @@ export class TargetManager {
             let dy = y - target.position.y; // difference in Y axis
             let distance_sq = dx*dx + dy*dy;
 
-            console.log(">>>", distance_sq, radius_sq);
             if (distance_sq <= radius_sq) {
                 // HIT!
                 let damage = weaponPower * (1 - target.config.dr); // Consider damage reduction from protection item

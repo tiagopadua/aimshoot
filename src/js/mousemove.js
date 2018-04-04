@@ -25,6 +25,7 @@ export class MouseMove extends EventEmitter {
     constructor(targetObject) {
         super();
 
+        this.locked = false;
         this._targetDOM = targetObject;
 
         this.position = {
@@ -41,9 +42,21 @@ export class MouseMove extends EventEmitter {
         this._targetDOM.requestPointerLock = this._targetDOM.requestPointerLock || this._targetDOM.mozRequestPointerLock || this._targetDOM.webkitRequestPointerLock;
 
         window.addEventListener("blur", () => this.unlock());
-        this._targetDOM.addEventListener("pointerlockchange", event => {
+        document.addEventListener("pointerlockchange", event => {
             if ((document.pointerLockElement || document.mozPointerLockElement || document.webkitPointerLockElement) === this._targetDOM) {
+                if (this.locked) {
+                    return;
+                }
+                this.locked = true;
+                this.emit("lock");
+                this.addListeners();
+            } else {
+                if (!this.locked) {
+                    return;
+                }
+                this.locked = false;
                 this.removeListeners();
+                this.emit("unlock");
             }
         })
     }
@@ -91,17 +104,11 @@ export class MouseMove extends EventEmitter {
         this.position.y = 300;
 
         // Setup mouse control
-        this.addListeners();
         this._targetDOM.requestPointerLock();
-
-        this.emit("lock");
     }
 
     unlock() {
-        let exitPointerLock = document.exitPointerLock || document.mozExitPointerLock || document.webkitExitPointerLock;
-        exitPointerLock();
+        document.exitPointerLock();
         this.removeListeners();
-
-        this.emit("unlock");
     }
 }
