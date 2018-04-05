@@ -48,6 +48,10 @@ export class MouseMove extends EventEmitter {
                     return;
                 }
                 this.locked = true;
+                // Reset current position
+                this.position.x = 350;
+                this.position.y = 300;
+
                 this.emit("lock");
                 this.addListeners();
             } else {
@@ -99,10 +103,6 @@ export class MouseMove extends EventEmitter {
     }
 
     lock() {
-        // Reset current position
-        this.position.x = 350;
-        this.position.y = 300;
-
         // Setup mouse control
         this._targetDOM.requestPointerLock();
     }

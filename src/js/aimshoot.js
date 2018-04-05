@@ -2,6 +2,7 @@ import "../scss/aimshoot.scss";
 
 let MouseMove = require("./mousemove.js").MouseMove;
 let TargetManager = require("./target.js").TargetManager;
+let Keyboard = require("./keyboard.js").Keyboard;
 
 const EQUIPMENT_URL = "js/equipment.json",
       RECOIL_TO_PIXEL_FACTOR = 0.3;
@@ -15,18 +16,27 @@ class Reloader {
     show(time) {
         this.reloadBarElement.style.width = "0%";
         this.reloadBarElement.style.transition = "width " + time + "s linear";
+        this.reloadBarElement.offsetHeight; // This is to force redraw
+        this.reloadBarElement.style.display = "block";
         this.reloadElement.style.display = "block";
-        setTimeout(() => {
-            this.reloadBarElement.style.width = "100%";
-        }, 50);
+        this.reloadBarElement.offsetHeight;
+        this.reloadBarElement.style.width = "100%";
     }
 
     hide() {
         this.reloadElement.style.display = "none";
+        this.reloadBarElement.style.display = "none";
         this.reloadBarElement.style.transition = "";
         this.reloadBarElement.style.width = "0";
     }
 }
+
+window.bullets = new Vue({
+    el: "#bullets",
+    data: {
+        bullets: 0
+    }
+});
 
 class Shooter {
     constructor(areaElement, aimElement) {
@@ -50,7 +60,6 @@ class Shooter {
         this.weapon = {
             "name": "None",
             "ammo": "",
-            "bullets": 0,
             "capacity": 0,
             "power": 0,
             "rate": 0,
@@ -68,8 +77,19 @@ class Shooter {
         this.shootIntent = false; // Tried to shoot in-between shots
         this.fullAutoInterval = null;
         this.reloading = false;
+        this.reloadingSingle = false;
+        this.singleReloadedBullets = 0;
+        this.singleReloadTimeout = null;
 
         this.reloader = new Reloader("reload");
+
+        this.key = new Keyboard(["R", "B"]);
+        this.key.on("R", () => {
+            this.reload();
+        });
+        this.key.on("B", () => {
+            // todo: toggle firing modes
+        });
     }
 
     start() {
@@ -89,6 +109,197 @@ class Shooter {
         }
         clearInterval(this._interval);
         this._interval = null;
+    }
+
+    setWeapon(weapon, multipliers) {
+        this.weapon = weapon;
+        this.weaponMultipliers = multipliers;
+        window.bullets.bullets = this.weapon.capacity;
+    }
+
+    shoot(fullAutoCount) {
+        if (this.reloading) {
+            return;
+        } else if (this.reloadingSingle) {
+            if (!this.tryCancelSingleReload()) {
+                return;
+            }
+            // else continue shooting, reloading has been canceled
+        } else if (window.bullets.bullets <= 0) {
+            return;
+        }
+
+        // Check if can shoot, according to fire rate
+        let now = Date.now();
+        let elapsedTime = now - this.shotTime;
+        if (elapsedTime < this.weapon.rate) {
+            // Set to shoot as soon as ready, when weapon is SEMI or FULL auto
+            if (this.weapon.selectedMode === "semi" || this.weapon.selectedMode === "full") {
+                setTimeout(() => this.shoot(), this.weapon.rate - elapsedTime);
+            }
+            return;
+        }
+        this.shotTime = now;
+
+        // Get rid of 1 bullet
+        window.bullets.bullets -= 1;
+
+        // Verify target hit
+        this.targetManager.checkHit(this._mouse.position.x, this._mouse.position.y, this.weapon.power, this.weaponMultipliers);
+
+        // Now randomize the recoil
+        let random_index = 0;
+        if (typeof(fullAutoCount) !== "number" || fullAutoCount <= 1) {
+            random_index = 0;
+        } else if (fullAutoCount <= 5) {
+            random_index = 1;
+        } else if (fullAutoCount <= 10) {
+            random_index = 2;
+        } else if (fullAutoCount <= 20) {
+            random_index = 3;
+        } else {
+            random_index = 4;
+        }
+
+        let minimumX = this.weapon.recoil.horizontal.speed;
+        let randomX = this.weapon.recoil.horizontal.random.min[random_index] + Math.random() * this.weapon.recoil.horizontal.random.max[random_index];
+        let minimumY = this.weapon.recoil.vertical.speed;
+        let randomY = this.weapon.recoil.vertical.random.min[random_index] + Math.random() * this.weapon.recoil.vertical.random.max[random_index];
+
+        let recoilX = minimumX + randomX;
+        let recoilY = minimumY + randomY;
+
+        recoilX *= this.weapon.recoil.spread * RECOIL_TO_PIXEL_FACTOR / 2;
+        recoilY *= this.weapon.recoil.spread * RECOIL_TO_PIXEL_FACTOR;
+
+        if ((Math.random() - 0.5) < 0) {
+            recoilX *= -1;
+        }
+
+        this._mouse.updatePosition(recoilX, -recoilY);
+    }
+
+    startFullAuto() {
+        // Ignor if already started, or if reloading
+        if (this.fullAutoInterval !== null || this.reloading) {
+            return;
+        }
+        // Don't start if weapon does not support full-auto
+        if (this.weapon.modes.indexOf("full") < 0) {
+            return;
+        }
+
+        let fullAutoCount = 1;
+        this.fullAutoInterval = setInterval(() => {
+            this.shoot(fullAutoCount);
+            this.setAimPositionFromMouse();
+            fullAutoCount += 1;
+        }, this.weapon.rate);
+    }
+
+    stopFullAuto() {
+        if (this.fullAutoInterval === null) {
+            return;
+        }
+        clearInterval(this.fullAutoInterval);
+        this.fullAutoInterval = null;
+    }
+
+    reload() {
+        if (this.reloading || this.reloadingSingle) {
+            return;
+        }
+
+        this.stopFullAuto();
+
+        this.reloadingSingle = false;
+        if (!this.weapon.reload.hasOwnProperty("single")) {
+            // Cannot reload single. Can only be full.
+            this.reloadingSingle = false;
+        } else if (this.weapon.reload.hasOwnProperty("full") && window.bullets.bullets <= 0) {
+            // Can reload single, but has full option AND has 0 bullets
+            this.reloadingSingle = false;
+        } else {
+            this.reloadingSingle = true;
+        }
+
+        if (this.reloadingSingle) {
+            this.singleReloadedBullets = 0;
+            this.reloadSingleBullet();
+        } else {
+            // Reload FULL
+            this.reloading = true;
+
+            let reloadTime = this.weapon.reload.full;
+            setTimeout(() => {
+                window.bullets.bullets = this.weapon.capacity;
+                this.reloading = false;
+                this.reloader.hide();
+            }, reloadTime * 1000.0);
+            this.reloader.show(reloadTime);
+        }
+    }
+
+    reloadSingleBullet() {
+        this.reloader.hide();
+
+        if (window.bullets.bullets < this.weapon.capacity) {
+            // The first reload time is higher
+            let singleReloadTime = this.weapon.reload.single[0];
+            if (this.singleReloadedBullets > 0) {
+                singleReloadTime = this.weapon.reload.single[1];
+            }
+
+            this.singleReloadTimeout = setTimeout(() => {
+                this.singleReloadedBullets += 1;
+                window.bullets.bullets += 1;
+                this.reloadSingleBullet();
+            }, singleReloadTime * 1000.0);
+
+            this.reloader.show(singleReloadTime);
+        } else {
+            // Finished reloading all bullets
+            this.reloadingSingle = false;
+            this.singleReloadedBullets = 0;
+        }
+    }
+
+    tryCancelSingleReload() {
+        if (this.reloadingSingle && window.bullets.bullets > 0) {
+            // Stop timer
+            clearTimeout(this.singleReloadTimeout);
+            this.singleReloadTimeout = null;
+            // Set flags
+            this.reloading = false;
+            this.reloadingSingle = false;
+            this.singleReloadedBullets = 0;
+            // Remove visual element
+            this.reloader.hide();
+
+            console.log("cancelou");
+
+            return true;
+        }
+        return false;
+    }
+
+    setAimPositionFromMouse() {
+        this._aimElement.style.left = this._mouse.position.x + "px";
+        this._aimElement.style.top = this._mouse.position.y + "px";
+    }
+
+    _onMouseMove(position, dragging) {
+        this.setAimPositionFromMouse();
+    }
+
+    _onMouseDown(position) {
+        this.shoot();
+        this.setAimPositionFromMouse();
+        this.startFullAuto();
+    }
+
+    _onMouseUp() {
+        this.stopFullAuto();
     }
 
     loadEquipment() {
@@ -324,19 +535,19 @@ class Shooter {
                                     "tactical": 2.25
                                 },
                                 "recoil": {
-                                    "spread": 6.0,
+                                    "spread": 4.6,
                                     "horizontal": {
-                                        "speed": 11.0,
+                                        "speed": 9.0,
                                         "random": {
-                                            "min": [ 0.0, 1.0, 3.0, 5.0, 6.0 ],
-                                            "max": [ 1.0, 4.0, 8.0, 10.0, 11.0 ]
+                                            "min": [ 1.0, 1.5, 2.0, 2.5, 3.0 ],
+                                            "max": [ 3.0, 4.0, 4.0, 5.0, 6.0 ]
                                         }
                                     },
                                     "vertical": {
-                                        "speed": 14.0,
+                                        "speed": 15.0,
                                         "random": {
-                                            "min": [ 6.0, 3.0, 5.0, 7.0, 12.0 ],
-                                            "max": [ 8.0, 4.0, 10.0, 15.0, 14.0 ]
+                                            "min": [ 2.0, 3.0, 4.0, 4.0, 5.0 ],
+                                            "max": [ 3.0, 5.0, 6.0, 7.0, 7.0 ]
                                         }
                                     }
                                 }
@@ -639,6 +850,10 @@ class Shooter {
                                 "modes": [ "full" ],
                                 "range": 71,
                                 "icon": "img/dp28.png",
+                                "reload": {
+                                    "full": 6.2,
+                                    "tactical": 5.1
+                                },
                                 "recoil": {
                                     "spread": 6.0,
                                     "horizontal": {
@@ -711,7 +926,7 @@ class Shooter {
                                 "recoil": {
                                     "spread": 8.0,
                                     "horizontal": {
-                                        "speed": 7.0,
+                                        "speed": 6.0,
                                         "random": {
                                             "min": [ 0.0 ],
                                             "max": [ 1.0 ]
@@ -735,12 +950,13 @@ class Shooter {
                                 "range": 79,
                                 "icon": "img/kar98k.png",
                                 "reload": {
+                                    "full": [ 4.0 ],
                                     "single": [ 1.69, 0.75 ]
                                 },
                                 "recoil": {
-                                    "spread": 8.0,
+                                    "spread": 9.0,
                                     "horizontal": {
-                                        "speed": 7.0,
+                                        "speed": 6.0,
                                         "random": {
                                             "min": [ 0.0 ],
                                             "max": [ 1.0 ]
@@ -768,7 +984,7 @@ class Shooter {
                                     "tactical": 1.8
                                 },
                                 "recoil": {
-                                    "spread": 7.5,
+                                    "spread": 8.5,
                                     "horizontal": {
                                         "speed": 7.0,
                                         "random": {
@@ -798,7 +1014,7 @@ class Shooter {
                                     "tactical": 2.3
                                 },
                                 "recoil": {
-                                    "spread": 7.5,
+                                    "spread": 9.5,
                                     "horizontal": {
                                         "speed": 7.0,
                                         "random": {
@@ -1038,123 +1254,6 @@ class Shooter {
             }, 500);
         });
     }
-
-    shoot(fullAutoCount) {
-        if (this.reloading) {
-            return;
-        } else if (this.weapon.bullets <= 0) {
-            this.reload();
-            return;
-        }
-
-        // Check if can shoot, according to fire rate
-        let now = Date.now();
-        let elapsedTime = now - this.shotTime;
-        if (elapsedTime < this.weapon.rate) {
-            // Set to shoot as soon as ready, when weapon is SEMI or FULL auto
-            if (this.weapon.selectedMode === "semi" || this.weapon.selectedMode === "full") {
-                setTimeout(() => this.shoot(), this.weapon.rate - elapsedTime);
-            }
-            return;
-        }
-        this.shotTime = now;
-
-        // Get rid of 1 bullet
-        this.weapon.bullets -= 1;
-        console.log(this.weapon.bullets);
-
-        // Verify target hit
-        this.targetManager.checkHit(this._mouse.position.x, this._mouse.position.y, this.weapon.power, this.weaponMultipliers);
-
-        // Now randomize the recoil
-        let random_index = 0;
-        if (typeof(fullAutoCount) !== "number" || fullAutoCount <= 1) {
-            random_index = 0;
-        } else if (fullAutoCount <= 5) {
-            random_index = 1;
-        } else if (fullAutoCount <= 10) {
-            random_index = 2;
-        } else if (fullAutoCount <= 20) {
-            random_index = 3;
-        } else {
-            random_index = 4;
-        }
-
-        let minimumX = this.weapon.recoil.horizontal.speed;
-        let randomX = this.weapon.recoil.horizontal.random.min[random_index] + Math.random() * this.weapon.recoil.horizontal.random.max[random_index];
-        let minimumY = this.weapon.recoil.vertical.speed;
-        let randomY = this.weapon.recoil.vertical.random.min[random_index] + Math.random() * this.weapon.recoil.vertical.random.max[random_index];
-
-        let recoilX = minimumX + randomX;
-        let recoilY = minimumY + randomY;
-
-        recoilX *= this.weapon.recoil.spread * RECOIL_TO_PIXEL_FACTOR / 2;
-        recoilY *= this.weapon.recoil.spread * RECOIL_TO_PIXEL_FACTOR;
-
-        if ((Math.random() - 0.5) < 0) {
-            recoilX *= -1;
-        }
-
-        this._mouse.updatePosition(recoilX, -recoilY);
-    }
-
-    startFullAuto() {
-        // Ignor if already started, or if reloading
-        if (this.fullAutoInterval !== null || this.reloading) {
-            return;
-        }
-        // Don't start if weapon does not support full-auto
-        if (this.weapon.modes.indexOf("full") < 0) {
-            return;
-        }
-
-        let fullAutoCount = 1;
-        this.fullAutoInterval = setInterval(() => {
-            this.shoot(fullAutoCount);
-            this.setAimPositionFromMouse();
-            fullAutoCount += 1;
-        }, this.weapon.rate);
-    }
-
-    stopFullAuto() {
-        if (this.fullAutoInterval === null) {
-            return;
-        }
-        clearInterval(this.fullAutoInterval);
-        this.fullAutoInterval = null;
-    }
-
-    reload() {
-        console.log("Reloading");
-        this.reloading = true;
-        this.stopFullAuto();
-
-        let reloadTime = this.weapon.reload.full || this.weapon.reload.single[0];
-        setTimeout(() => {
-            this.weapon.bullets = this.weapon.capacity;
-            this.reloading = false;
-            this.reloader.hide();
-        }, reloadTime * 1000.0);
-        
-        this.reloader.show(reloadTime);
-    }
-
-    setAimPositionFromMouse() {
-        this._aimElement.style.left = this._mouse.position.x + "px";
-        this._aimElement.style.top = this._mouse.position.y + "px";
-    }
-
-    _onMouseMove(position, dragging) {
-        this.setAimPositionFromMouse();
-    }
-    _onMouseDown(position) {
-        this.shoot();
-        this.setAimPositionFromMouse();
-        this.startFullAuto();
-    }
-    _onMouseUp() {
-        this.stopFullAuto();
-    }
 }
 
 window.shooter = new Shooter(document.getElementById("shoot-area"), document.getElementById("aim"));
@@ -1175,11 +1274,10 @@ window.shooter.loadEquipment().then(equipment => {
                 this.weaponcategory = categoryName;
             },
             setWeapon: function(weapon, multipliers) {
-                weapon.bullets = weapon.capacity;
                 weapon.selectedMode = weapon.modes[0];
                 this.selectedWeapon = weapon;
-                window.shooter.weapon = weapon;
-                window.shooter.weaponMultipliers = multipliers;
+
+                window.shooter.setWeapon(weapon, multipliers);
 
                 this.hideMenu();
             },
